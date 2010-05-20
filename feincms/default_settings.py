@@ -26,6 +26,10 @@ FEINCMS_MEDIALIBRARY_URL = getattr(settings, 'FEINCMS_MEDIALIBRARY_URL', setting
 
 TINYMCE_JS_URL = getattr(settings, 'TINYMCE_JS_URL', join(settings.MEDIA_URL, 'js/tiny_mce/tiny_mce.js'))
 
+TINYMCE_INIT_URL = getattr(settings, 'TINYMCE_INIT_URL', None)
+
+TINYMCE_GRAPPELLI_FILEBROWSER = getattr(settings, 'TINYMCE_GRAPPELLI_FILEBROWSER', None)
+
 TINYMCE_CONFIG_URL = getattr(settings, 'TINYMCE_CONFIG_URL', 'admin/content/richtext/init.html')
 
 TINYMCE_CONTENT_CSS_URL = getattr(settings, 'TINYMCE_CONTENT_CSS_URL', None)

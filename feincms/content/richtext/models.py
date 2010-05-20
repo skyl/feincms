@@ -73,6 +73,7 @@ class RichTextContent(models.Model):
 
     feincms_item_editor_context_processors = (
         lambda x: dict(TINYMCE_JS_URL = settings.TINYMCE_JS_URL),
+        lambda x: dict(TINYMCE_GRAPPELLI_FILEBROWSER = settings.TINYMCE_GRAPPELLI_FILEBROWSER),
         lambda x: dict(TINYMCE_CONTENT_CSS_URL = settings.TINYMCE_CONTENT_CSS_URL),
         lambda x: dict(TINYMCE_LINK_LIST_URL = settings.TINYMCE_LINK_LIST_URL),
     )
