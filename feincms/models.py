@@ -107,8 +107,9 @@ class ContentProxy(object):
         return self.get_content(item, attr)
 
     def get_content(self, item, attr):
+        template = item.template
         try:
-            region = item.template.regions_dict[attr]
+            region = template.regions_dict[attr]
         except KeyError:
             return []
 
@@ -150,6 +151,13 @@ class Base(models.Model):
                 ('main', _('Main content area')),
                 )
         """
+
+        if hasattr(cls, 'template'):
+            import warnings
+            warnings.warn(
+                'Ignoring second call to register_regions.',
+                RuntimeWarning)
+            return
 
         # implicitly creates a dummy template object -- the item editor
         # depends on the presence of a template.
@@ -537,7 +545,24 @@ class Base(models.Model):
             for key, includes in model.feincms_item_editor_includes.items():
                 cls.feincms_item_editor_includes.setdefault(key, set()).update(includes)
 
-        # Ensure meta information is up-to-date
+        # Ensure meta information concerning related fields is up-to-date.
+        #
+        # Upon accessing the related fields information from Model._meta, the related
+        # fields are cached and never refreshed again (because models and model relations
+        # are defined upon import time, if you do not fumble around with models like we
+        # do right here.)
+        #
+        # Adding related models after this information has been cached leads to models
+        # not knowing about related items, which again causes the bug we had in
+        # issue #63 on github:
+        #
+        # http://github.com/matthiask/feincms/issues/issue/63/
+        #
+        # Currently, all methods filling up the Model.meta cache start with fill_.
+        # We call all these methods upon creation of a new content type to make sure
+        # that we really really do not forget a relation somewhere. Of course, we do
+        # too much here, but better a bit too much upon application startup than not
+        # enough like before.
         for fn in [s for s in dir(cls._meta) if s[:6]=='_fill_']:
             getattr(cls._meta, fn)()
 

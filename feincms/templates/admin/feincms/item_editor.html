@@ -48,7 +48,7 @@
      <a href="../../../">{% trans "Home" %}</a> &rsaquo;
      <a href="../../">{{ opts.app_label|capfirst|escape }}</a> &rsaquo;
      <a href="../">{{ opts.verbose_name_plural|capfirst }}</a> &rsaquo;
-     {{ object }}
+     {% if add %}{{ title }}{% else %}{{ object }}{% endif %}
 </div>
 {% endblock %}
 
@@ -57,8 +57,10 @@
 <div id="content-main">
 
 {% block object-tools %}
-{{ block.super }}
 <ul class="object-tools">
+    {% if object.get_absolute_url %}
+    <li><a target="_blank" href="{{ object.get_absolute_url }}" class="viewsitelink">{% trans "View on site" %}</a></li>
+    {% endif %}
     {% if object.get_preview_url %}
         <li><a target="_blank" href="{{ object.get_preview_url }}" class="viewsitelink">{% trans "Preview" %}</a></li>
     {% endif %}
@@ -75,7 +77,9 @@
 
 <div class="submit-row" >
 <input type="submit" value="{% trans "Save" %}" class="default save-button" name="_save" />
+{% if not add %}
 <p class="deletelink-box"><a href="delete/" class="deletelink">{% trans "Delete" %}</a></p>
+{% endif  %}
 
 <input type="submit" value="{% trans "Save and add another" %}" class="save-add-button" name="_addanother"  />
 <input type="submit" value="{% trans "Save and continue editing" %}" class="save-continue-button" name="_continue" />
@@ -175,7 +179,9 @@
 
 <div class="submit-row" >
 <input type="submit" value="{% trans "Save" %}" class="default" name="_save" />
+{% if not add %}
 <p class="deletelink-box"><a href="delete/" class="deletelink">{% trans "Delete" %}</a></p>
+{% endif %}
 
 <input type="submit" value="{% trans "Save and add another" %}" name="_addanother"  />
 <input type="submit" value="{% trans "Save and continue editing" %}" name="_continue" />
@@ -206,6 +212,7 @@
 {% endfor %}
 </div>
 
+{% prepopulated_fields_js %}
 </div>
 </form>
 

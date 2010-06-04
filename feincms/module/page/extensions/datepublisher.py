@@ -46,12 +46,23 @@ def granular_now(n=None):
 # ------------------------------------------------------------------------
 def register(cls, admin_cls):
     cls.add_to_class('publication_date', models.DateTimeField(_('publication date'),
-        default=datetime.now))
+        default=granular_now))
     cls.add_to_class('publication_end_date', models.DateTimeField(_('publication end date'),
         blank=True, null=True,
         help_text=_('Leave empty if the entry should stay active forever.')))
     cls.add_to_class('latest_children', latest_children)
 
+    # Patch in rounding the pub and pub_end dates on save
+    orig_save = cls.save
+    def granular_save(obj, *args, **kwargs):
+        if obj.publication_date:
+            obj.publication_date = granular_now(obj.publication_date)
+        if obj.publication_end_date:
+            obj.publication_end_date = granular_now(obj.publication_end_date)
+        orig_save(obj, *args, **kwargs)
+    cls.save = granular_save
+
+    # Append publication date active check
     if hasattr(cls.objects, 'add_to_active_filters'):
         cls.objects.add_to_active_filters(
             Q(publication_date__lte=granular_now) &
@@ -73,5 +84,6 @@ def register(cls, admin_cls):
         pos = len(admin_cls.list_display)
 
     admin_cls.list_display.insert(pos + 1, 'datepublisher_admin')
+    admin_cls.fieldsets[0][1]['fields'].extend(['publication_date', 'publication_end_date'])
 
 # ------------------------------------------------------------------------
